@@ -12,22 +12,6 @@
   ],
   "routes": [
     {
-      "src": "/api/health",
-      "dest": "/backend/api/health.js"
-    },
-    {
-      "src": "/api/login",
-      "dest": "/backend/api/login.js"
-    },
-    {
-      "src": "/api/register",
-      "dest": "/backend/api/register.js"
-    },
-    {
-      "src": "/api/users",
-      "dest": "/backend/api/users.js"
-    },
-    {
       "src": "/api/(.*)",
       "dest": "/backend/api/$1"
     },

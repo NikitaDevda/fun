@@ -1,8 +1,8 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const fs = require('fs').promises;
-const path = require('path');
+const User = require('./models/User');
 
 dotenv.config();
 
@@ -16,114 +16,19 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Data directory
-const DATA_DIR = process.env.DATA_DIR || './data';
+// ===== MONGODB CONNECTION =====
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB Atlas Connected Successfully!'))
+  .catch(err => {
+    console.error('❌ MongoDB Connection Error:', err.message);
+    process.exit(1);
+  });
 
-// Ensure data directory exists
-async function ensureDataDir() {
-  try {
-    await fs.access(DATA_DIR);
-  } catch {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    console.log('📁 Data directory created');
-  }
-}
+// ===== API ROUTES =====
 
-// ==================== FILE OPERATIONS ====================
-
-// Get user file path
-function getUserFilePath(userId) {
-  const sanitizedId = userId.replace(/[^a-zA-Z0-9_-]/g, '');
-  return path.join(DATA_DIR, `user_${sanitizedId}.txt`);
-}
-
-// Read user data from file (NO ENCRYPTION)
-async function readUserFile(userId) {
-  try {
-    const filePath = getUserFilePath(userId);
-    const content = await fs.readFile(filePath, 'utf8');
-    
-    const lines = content.split('\n');
-    const userData = {};
-    
-    lines.forEach(line => {
-      const [key, ...valueParts] = line.split(': ');
-      if (key && valueParts.length > 0) {
-        const value = valueParts.join(': ').trim();
-        if (key === 'password') {
-          userData[key] = value;  // Plain text password
-        } else if (key === 'loginCount') {
-          userData[key] = parseInt(value) || 0;
-        } else if (key === 'firstLogin' || key === 'lastLogin') {
-          userData[key] = new Date(value);
-        } else {
-          userData[key] = value;
-        }
-      }
-    });
-    
-    return userData;
-  } catch (error) {
-    return null;
-  }
-}
-
-// Write user data to file (NO ENCRYPTION)
-async function writeUserFile(userId, userData) {
-  const filePath = getUserFilePath(userId);
-  
-  const content = `userId: ${userId}
-password: ${userData.password || ''}
-firstLogin: ${userData.firstLogin ? new Date(userData.firstLogin).toISOString() : new Date().toISOString()}
-lastLogin: ${userData.lastLogin ? new Date(userData.lastLogin).toISOString() : new Date().toISOString()}
-loginCount: ${userData.loginCount || 0}
-createdAt: ${new Date().toISOString()}
-`;
-  
-  await fs.writeFile(filePath, content, 'utf8');
-  return true;
-}
-
-// Get all users
-async function getAllUsers() {
-  try {
-    const files = await fs.readdir(DATA_DIR);
-    const users = [];
-    
-    for (const file of files) {
-      if (file.startsWith('user_') && file.endsWith('.txt')) {
-        const userId = file.replace('user_', '').replace('.txt', '');
-        const userData = await readUserFile(userId);
-        if (userData) {
-          users.push(userData);
-        }
-      }
-    }
-    
-    return users;
-  } catch (error) {
-    return [];
-  }
-}
-
-// Delete user file
-async function deleteUserFile(userId) {
-  try {
-    const filePath = getUserFilePath(userId);
-    await fs.unlink(filePath);
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
-// ==================== API ROUTES ====================
-
-// 1. REGISTER USER (Plain text password)
+// 1. REGISTER USER
 app.post('/api/register', async (req, res) => {
   try {
-    console.log('📝 Register request:', req.body);
-    
     const { userId, password } = req.body;
 
     if (!userId || !password) {
@@ -133,8 +38,7 @@ app.post('/api/register', async (req, res) => {
       });
     }
 
-    // Check if user already exists
-    const existingUser = await readUserFile(userId);
+    const existingUser = await User.findOne({ userId });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -142,26 +46,23 @@ app.post('/api/register', async (req, res) => {
       });
     }
 
-    // Create new user - ORIGINAL PASSWORD (NO ENCRYPTION)
-    const userData = {
+    const newUser = new User({
       userId,
-      password: password,  // 👈 Plain text password
+      password,
       firstLogin: new Date(),
       lastLogin: new Date(),
       loginCount: 1
-    };
+    });
 
-    await writeUserFile(userId, userData);
-    console.log(`✅ User "${userId}" registered successfully! Password: "${password}"`);
+    await newUser.save();
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully!',
       data: {
-        userId: userData.userId,
-        password: userData.password,  // 👈 Original password in response
-        firstLogin: userData.firstLogin,
-        loginCount: userData.loginCount
+        userId: newUser.userId,
+        firstLogin: newUser.firstLogin,
+        loginCount: newUser.loginCount
       }
     });
 
@@ -174,11 +75,9 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// 2. LOGIN USER (Plain text password check)
+// 2. LOGIN USER
 app.post('/api/login', async (req, res) => {
   try {
-    console.log('🔑 Login request:', req.body);
-    
     const { userId, password } = req.body;
 
     if (!userId || !password) {
@@ -188,40 +87,33 @@ app.post('/api/login', async (req, res) => {
       });
     }
 
-    // Read user data from file
-    const userData = await readUserFile(userId);
-    
-    if (!userData) {
+    const user = await User.findOne({ userId });
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: 'User not found! Please register first.'
       });
     }
 
-    // Check password - DIRECT COMPARE (NO ENCRYPTION)
-    if (userData.password !== password) {
+    if (user.password !== password) {
       return res.status(401).json({
         success: false,
         message: 'Invalid password! Please try again.'
       });
     }
 
-    // Update login info
-    userData.lastLogin = new Date();
-    userData.loginCount = (userData.loginCount || 0) + 1;
-    await writeUserFile(userId, userData);
-
-    console.log(`✅ User "${userId}" logged in successfully!`);
+    user.lastLogin = new Date();
+    user.loginCount = user.loginCount + 1;
+    await user.save();
 
     res.json({
       success: true,
       message: 'Login successful!',
       data: {
-        userId: userData.userId,
-        password: userData.password,  // 👈 Original password
-        lastLogin: userData.lastLogin,
-        loginCount: userData.loginCount,
-        firstLogin: userData.firstLogin
+        userId: user.userId,
+        lastLogin: user.lastLogin,
+        loginCount: user.loginCount,
+        firstLogin: user.firstLogin
       }
     });
 
@@ -237,7 +129,7 @@ app.post('/api/login', async (req, res) => {
 // 3. GET ALL USERS
 app.get('/api/users', async (req, res) => {
   try {
-    const users = await getAllUsers();
+    const users = await User.find().select('-password');
     res.json({
       success: true,
       count: users.length,
@@ -255,7 +147,7 @@ app.get('/api/users', async (req, res) => {
 app.delete('/api/user/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    const deleted = await deleteUserFile(userId);
+    const deleted = await User.findOneAndDelete({ userId });
     
     if (!deleted) {
       return res.status(404).json({
@@ -277,36 +169,17 @@ app.delete('/api/user/:userId', async (req, res) => {
 });
 
 // 5. HEALTH CHECK
-app.get('/api/health', async (req, res) => {
-  try {
-    await ensureDataDir();
-    res.json({
-      status: 'OK',
-      message: 'Server is running (Plain Text Passwords)',
-      dataDir: DATA_DIR,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'ERROR',
-      message: error.message
-    });
-  }
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'Server is running with MongoDB',
+    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
+    timestamp: new Date().toISOString()
+  });
 });
-
-// ==================== START SERVER ====================
 
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, async () => {
-  await ensureDataDir();
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📡 API URL: http://localhost:${PORT}/api`);
-  console.log(`📁 Data directory: ${path.resolve(DATA_DIR)}`);
-  console.log(`🔓 Passwords saved in ORIGINAL/PLAIN TEXT format`);
-  console.log(`✅ Ready to handle login requests!`);
-});
-
-process.on('unhandledRejection', (error) => {
-  console.error('Unhandled Rejection:', error);
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`✅ API ready at http://localhost:${PORT}/api`);
 });

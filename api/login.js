@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
-// MongoDB connection for Vercel
 let cached = global.mongoose;
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
@@ -18,7 +17,6 @@ async function connectDB() {
 }
 
 module.exports = async (req, res) => {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -62,7 +60,6 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Update login info
     user.lastLogin = new Date();
     user.loginCount = user.loginCount + 1;
     await user.save();

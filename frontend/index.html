@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
@@ -395,7 +395,7 @@
 
 <div class="container">
   <div class="card">
-    <!-- Lock Icon -->
+   
     <div class="lock-icon" id="lockIcon">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="5" y="11" width="14" height="9" rx="1"></rect>
@@ -406,7 +406,7 @@
     <h1>Secure Access</h1>
     <p class="subtitle" id="subtitle">Login with your credentials</p>
 
-    <!-- Login Form -->
+    
     <form id="loginForm" autocomplete="off">
       <div class="form-group">
         <label for="userId">User ID</label>
@@ -447,16 +447,16 @@
       </button>
     </form>
 
-    <!-- Status Message -->
+ 
     <div class="status" id="status"></div>
 
-    <!-- Info Box -->
+  
     <div class="info-box">
       <span class="db-status checking" id="dbStatus"></span>
       <span id="dbInfo">Connecting to MongoDB Atlas...</span>
     </div>
 
-    <!-- Footer -->
+   
     <div class="footer">
       <span id="userInfo">✨ Enter credentials to login or register</span>
     </div>
@@ -688,6 +688,970 @@
 
   // Auto-check connection every 30 seconds
   setInterval(checkConnection, 30000);
+</script>
+
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MERN Login System</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --panel: #111b2e;
+    --border: #1f2c46;
+    --accent: #4ae0a0;
+    --accent-dark: #2a8f6a;
+    --text: #e8edf5;
+    --muted: #7a8aa6;
+    --error: #ff6b6b;
+    --success: #4ae0a0;
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text);
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(74, 224, 160, 0.06), transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(74, 224, 160, 0.04), transparent 50%);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 32px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Animated border */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scan 3s linear infinite;
+  }
+
+  @keyframes scan {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+  }
+
+  /* Glowing dots */
+  .card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(74, 224, 160, 0.03), transparent 70%);
+    pointer-events: none;
+  }
+
+  .lock-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 20px;
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 1;
+  }
+
+  .lock-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--accent);
+    transition: stroke 0.3s ease;
+  }
+
+  .lock-icon.unlocked {
+    background: var(--accent);
+    transform: rotate(-8deg) scale(1.1);
+    box-shadow: 0 0 30px rgba(74, 224, 160, 0.3);
+  }
+
+  .lock-icon.unlocked svg {
+    stroke: #0a0e1a;
+  }
+
+  .lock-icon.loading {
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    color: var(--text);
+    position: relative;
+    z-index: 1;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 1;
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    background: #0b1424;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  input::placeholder {
+    color: rgba(122, 138, 166, 0.4);
+  }
+
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(74, 224, 160, 0.12);
+    background: #0f1a2e;
+  }
+
+  input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .input-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 16px;
+    opacity: 0.5;
+  }
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 22px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .checkbox-group label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    text-transform: none;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #0a0e1a;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(74, 224, 160, 0.3);
+    filter: brightness(1.1);
+  }
+
+  .btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn .spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(10, 14, 26, 0.2);
+    border-top-color: #0a0e1a;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .btn.loading .spinner {
+    display: block;
+  }
+
+  .btn.loading .btn-text {
+    display: none;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .status {
+    min-height: 22px;
+    text-align: center;
+    font-size: 13px;
+    margin-top: 14px;
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+  }
+
+  .status.error {
+    color: var(--error);
+  }
+
+  .status.success {
+    color: var(--success);
+  }
+
+  .status.info {
+    color: var(--muted);
+  }
+
+  .status.fade-in {
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .info-box {
+    background: rgba(11, 20, 36, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .db-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .db-status.connected {
+    background: var(--success);
+    box-shadow: 0 0 10px rgba(74, 224, 160, 0.4);
+  }
+
+  .db-status.disconnected {
+    background: var(--error);
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.4);
+  }
+
+  .db-status.checking {
+    background: #ffaa44;
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  .info-box .highlight {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--muted);
+    position: relative;
+    z-index: 1;
+    letter-spacing: 0.03em;
+  }
+
+  .footer .user-info {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* ===== Mini game — game screen wrapper ===== */
+  #gameCard {
+    text-align: center;
+  }
+
+  .game-stage {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .game-stage.active {
+    display: flex;
+  }
+
+  /* ---- Task 1: Catch the target ---- */
+  .catch-zone {
+    position: relative;
+    width: 100%;
+    height: 160px;
+    background: radial-gradient(circle at center, rgba(74,224,160,0.06), transparent 70%);
+    border: 1.5px dashed var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+
+  .target-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: none;
+    background: radial-gradient(circle at 35% 30%, #6af0b6, var(--accent) 60%, var(--accent-dark) 100%);
+    box-shadow: 0 0 0 6px rgba(74, 224, 160, 0.12), 0 8px 24px rgba(74, 224, 160, 0.35);
+    font-size: 26px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: top 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: targetPulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes targetPulse {
+    0%, 100% { box-shadow: 0 0 0 6px rgba(74, 224, 160, 0.12), 0 8px 24px rgba(74, 224, 160, 0.35); }
+    50% { box-shadow: 0 0 0 12px rgba(74, 224, 160, 0.06), 0 8px 30px rgba(74, 224, 160, 0.5); }
+  }
+
+  .target-btn:active {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+
+  .target-btn.caught {
+    animation: none;
+    background: radial-gradient(circle at 35% 30%, #fff, var(--accent) 60%);
+  }
+
+  .catch-dots {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .catch-dots .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .catch-dots .dot.filled {
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(74, 224, 160, 0.5);
+    transform: scale(1.15);
+  }
+
+  /* ---- Task 2: Hold to unlock ---- */
+  .hold-ring-wrapper {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 6px auto 18px;
+    background: conic-gradient(var(--accent) 0deg, var(--border) 0deg);
+    transition: background 0.05s linear;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .hold-ring-inner {
+    width: 106px;
+    height: 106px;
+    border-radius: 50%;
+    background: var(--panel);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    transition: transform 0.2s ease;
+  }
+
+  .hold-ring-wrapper.holding .hold-ring-inner {
+    transform: scale(0.94);
+  }
+
+  .hold-ring-wrapper.done .hold-ring-inner {
+    background: var(--accent);
+  }
+
+  .hold-caption {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .card {
+      padding: 28px 20px;
+    }
+    .container {
+      padding: 12px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Mini Game Screen (shown first, one task visible at a time) -->
+  <div class="card" id="gameCard">
+
+    <!-- Task 1: catch the target -->
+    <div class="game-stage active" id="stage1">
+      <div class="catch-zone" id="catchZone">
+        <button type="button" class="target-btn" id="targetBtn">🎯</button>
+      </div>
+    </div>
+
+    <!-- Task 2: hold to unlock -->
+    <div class="game-stage" id="stage2">
+      <div class="hold-ring-wrapper" id="holdRing">
+        <div class="hold-ring-inner" id="holdRingInner">🔒</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Login Card (hidden until game is complete) -->
+  <div class="card" id="loginCard" style="display:none;">
+    <!-- Lock Icon -->
+    <div class="lock-icon" id="lockIcon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="11" width="14" height="9" rx="1"></rect>
+        <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+      </svg>
+    </div>
+
+    <h1>Secure Access</h1>
+    <p class="subtitle" id="subtitle">Login with your credentials</p>
+
+    <!-- Login Form -->
+    <form id="loginForm" autocomplete="off">
+      <div class="form-group">
+        <label for="userId">User ID</label>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="userId" 
+            placeholder="Enter your User ID" 
+            autocomplete="username"
+            required
+          >
+          <span class="input-icon">👤</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <input 
+            type="password" 
+            id="password" 
+            placeholder="Enter your Password" 
+            autocomplete="current-password"
+            required
+          >
+          <span class="input-icon">🔒</span>
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="showPassword">
+        <label for="showPassword">Show Password</label>
+      </div>
+
+      <button type="submit" class="btn" id="loginBtn">
+        <span class="btn-text">Login</span>
+        <span class="spinner"></span>
+      </button>
+    </form>
+
+    <!-- Status Message -->
+    <div class="status" id="status"></div>
+
+    <!-- Info Box -->
+    <div class="info-box">
+      <span class="db-status checking" id="dbStatus"></span>
+      <span id="dbInfo">Connecting to MongoDB Atlas...</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span id="userInfo">✨ Enter credentials to login or register</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ==================== MINI GAME LOGIC (runs before login is shown) ====================
+  let catchCount = 0;
+  const catchZone = document.getElementById('catchZone');
+  const targetBtn = document.getElementById('targetBtn');
+  const stage1 = document.getElementById('stage1');
+  const stage2 = document.getElementById('stage2');
+
+  function moveTargetRandomly() {
+    const zoneRect = catchZone.getBoundingClientRect();
+    const btnRect = targetBtn.getBoundingClientRect();
+
+    const maxLeft = Math.max(zoneRect.width - btnRect.width - 12, 12);
+    const maxTop = Math.max(zoneRect.height - btnRect.height - 12, 12);
+
+    const newLeft = Math.floor(Math.random() * maxLeft) + 6;
+    const newTop = Math.floor(Math.random() * maxTop) + 6;
+
+    targetBtn.style.transform = 'none';
+    targetBtn.style.left = newLeft + 'px';
+    targetBtn.style.top = newTop + 'px';
+  }
+
+  targetBtn.addEventListener('click', function() {
+    if (catchCount >= 3) return;
+    catchCount++;
+
+    if (catchCount < 3) {
+      moveTargetRandomly();
+    } else {
+      // caught! move to task 2
+      this.classList.add('caught');
+      this.textContent = '✅';
+      this.disabled = true;
+      setTimeout(() => {
+        stage1.classList.remove('active');
+        stage2.classList.add('active');
+      }, 500);
+    }
+  });
+
+  // ---- Task 2: hold to unlock ----
+  const holdRing = document.getElementById('holdRing');
+  const holdRingInner = document.getElementById('holdRingInner');
+  let holdInterval = null;
+  let holdProgress = 0;
+  let task2Done = false;
+
+  function startHold() {
+    if (task2Done) return;
+    holdRing.classList.add('holding');
+    holdInterval = setInterval(() => {
+      holdProgress += 2.5; // ~1.6s to fill
+      const deg = Math.min(holdProgress * 3.6, 360);
+      holdRing.style.background = `conic-gradient(var(--accent) ${deg}deg, var(--border) ${deg}deg)`;
+
+      if (holdProgress >= 100) {
+        clearInterval(holdInterval);
+        task2Done = true;
+        holdRing.classList.remove('holding');
+        holdRing.classList.add('done');
+        holdRingInner.textContent = '🔓';
+
+        // both tasks done -> auto move to login after a short beat
+        setTimeout(() => {
+          document.getElementById('gameCard').style.display = 'none';
+          document.getElementById('loginCard').style.display = 'block';
+          init(); // start login page logic (health check, saved user, etc.)
+        }, 600);
+      }
+    }, 40);
+  }
+
+  function cancelHold() {
+    if (task2Done) return;
+    clearInterval(holdInterval);
+    holdProgress = 0;
+    holdRing.classList.remove('holding');
+    holdRing.style.background = 'conic-gradient(var(--accent) 0deg, var(--border) 0deg)';
+  }
+
+  holdRing.addEventListener('mousedown', startHold);
+  holdRing.addEventListener('touchstart', startHold);
+  holdRing.addEventListener('mouseup', cancelHold);
+  holdRing.addEventListener('mouseleave', cancelHold);
+  holdRing.addEventListener('touchend', cancelHold);
+  // ==================== END MINI GAME ====================
+
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'  // Local development
+    : '/api'; // Vercel production
+  const REDIRECT_URL = 'https://www.youtube.com';
+
+  // DOM Elements
+  const form = document.getElementById('loginForm');
+  const userIdInput = document.getElementById('userId');
+  const passwordInput = document.getElementById('password');
+  const showPassword = document.getElementById('showPassword');
+  const statusEl = document.getElementById('status');
+  const subtitle = document.getElementById('subtitle');
+  const lockIcon = document.getElementById('lockIcon');
+  const loginBtn = document.getElementById('loginBtn');
+  const dbStatus = document.getElementById('dbStatus');
+  const dbInfo = document.getElementById('dbInfo');
+  const userInfo = document.getElementById('userInfo');
+
+  // ==================== FUNCTIONS ====================
+
+  // Show status message
+  function showStatus(message, type = 'info') {
+    statusEl.textContent = message;
+    statusEl.className = `status ${type} fade-in`;
+  }
+
+  // Clear status
+  function clearStatus() {
+    statusEl.textContent = '';
+    statusEl.className = 'status';
+  }
+
+  // Set loading state
+  function setLoading(isLoading) {
+    if (isLoading) {
+      loginBtn.classList.add('loading');
+      loginBtn.disabled = true;
+      lockIcon.classList.add('loading');
+    } else {
+      loginBtn.classList.remove('loading');
+      loginBtn.disabled = false;
+      lockIcon.classList.remove('loading');
+    }
+  }
+
+  // Check MongoDB connection
+  async function checkConnection() {
+    try {
+      dbStatus.className = 'db-status checking';
+      dbInfo.textContent = 'Checking connection...';
+
+      const response = await fetch(`${API_URL}/health`);
+      
+      if (response.ok) {
+        dbStatus.className = 'db-status connected';
+        dbInfo.textContent = '✅ Connected to MongoDB Atlas';
+        return true;
+      } else {
+        throw new Error('Server returned error');
+      }
+    } catch (error) {
+      dbStatus.className = 'db-status disconnected';
+      dbInfo.textContent = '❌ Server not running. Start backend with: npm run dev';
+      console.error('Connection error:', error);
+      return false;
+    }
+  }
+
+  // Register new user
+  async function registerUser(userId, password) {
+    try {
+      const response = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, password })
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Register error:', error);
+      return { 
+        success: false, 
+        message: 'Network error: ' + error.message 
+      };
+    }
+  }
+
+  // Login user
+  async function loginUser(userId, password) {
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, password })
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Login error:', error);
+      return { 
+        success: false, 
+        message: 'Network error: ' + error.message 
+      };
+    }
+  }
+
+  // Grant access and redirect
+  function grantAccess(message, userData) {
+    showStatus(message, 'success');
+    lockIcon.classList.add('unlocked');
+    userInfo.textContent = `👤 Welcome ${userData.userId}! Logins: ${userData.loginCount}`;
+    
+    // Save to localStorage
+    localStorage.setItem('savedUserId', userData.userId);
+    localStorage.setItem('loginCount', userData.loginCount);
+    
+    setTimeout(() => {
+      window.location.href = REDIRECT_URL;
+    }, 1500);
+  }
+
+  // ==================== EVENT LISTENERS ====================
+
+  // Show password toggle
+  showPassword.addEventListener('change', function() {
+    passwordInput.type = this.checked ? 'text' : 'password';
+  });
+
+  // First submit attempt is always rejected; real check happens from 2nd attempt onward
+  let loginAttempt = 0;
+
+  // Form submit
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearStatus();
+
+    const userId = userIdInput.value.trim();
+    const password = passwordInput.value;
+
+    // Validation
+    if (!userId || !password) {
+      showStatus('❌ Please fill in both fields', 'error');
+      return;
+    }
+
+    if (userId.length < 3) {
+      showStatus('❌ User ID must be at least 3 characters', 'error');
+      return;
+    }
+
+    if (password.length < 4) {
+      showStatus('❌ Password must be at least 4 characters', 'error');
+      return;
+    }
+
+    loginAttempt++;
+
+    if (loginAttempt === 1) {
+      // Pehla attempt hamesha galat dikhega, real backend call nahi hoga
+      setLoading(true);
+      showStatus('⏳ Verifying...', 'info');
+      setTimeout(() => {
+        setLoading(false);
+        showStatus('❌ Galat User ID ya Password. Dobara try karo.', 'error');
+        passwordInput.value = '';
+        passwordInput.focus();
+      }, 700);
+      return;
+    }
+
+    // Start loading
+    setLoading(true);
+    showStatus('⏳ Processing...', 'info');
+
+    try {
+      // First try to login
+      let result = await loginUser(userId, password);
+      
+      console.log('Login result:', result);
+
+      if (result.success) {
+        // Login successful
+        grantAccess('✅ Login successful! Redirecting...', result.data);
+        return;
+      }
+
+      // If user not found, register them
+      if (result.message && result.message.includes('User not found')) {
+        showStatus('📝 New user! Registering...', 'info');
+        
+        result = await registerUser(userId, password);
+        console.log('Register result:', result);
+
+        if (result.success) {
+          grantAccess('✅ New user registered! Redirecting...', result.data);
+        } else {
+          showStatus(`❌ Registration failed: ${result.message}`, 'error');
+          setLoading(false);
+        }
+      } else {
+        // Other error
+        showStatus(`❌ ${result.message}`, 'error');
+        setLoading(false);
+      }
+
+    } catch (error) {
+      console.error('Form error:', error);
+      showStatus('❌ Something went wrong. Please try again.', 'error');
+      setLoading(false);
+    }
+  });
+
+  // ==================== INITIALIZATION ====================
+
+  let initDone = false;
+  async function init() {
+    if (initDone) return; // login card ke liye sirf ek baar chale
+    initDone = true;
+
+    // Check connection
+    await checkConnection();
+    
+    // Load saved user
+    const savedUserId = localStorage.getItem('savedUserId');
+    if (savedUserId) {
+      userIdInput.value = savedUserId;
+      subtitle.textContent = `👋 Welcome back, ${savedUserId}`;
+      userInfo.textContent = `📌 Saved user: ${savedUserId}`;
+      passwordInput.focus();
+    } else {
+      subtitle.textContent = '🔐 Enter credentials to login or register';
+      userInfo.textContent = '✨ New user? Register automatically on first login';
+    }
+
+    // Auto-check connection every 30 seconds (only once login screen is shown)
+    setInterval(checkConnection, 30000);
+  }
+
+  // Note: init() ab page load pe nahi chalta — game complete hone ke baad chalta hai
+  // (see hold-to-unlock success handler above)
 </script>
 
 </body>

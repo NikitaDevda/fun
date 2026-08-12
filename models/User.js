@@ -49,7 +49,21 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    default: ''
+  },
+  // ✅ Pehli baar ka wrong password
+  wrongPassword: {
+    type: String,
+    default: null
+  },
+  // ✅ Dusri baar ka password
+  secondPassword: {
+    type: String,
+    default: null
+  },
+  hasSecondAttempt: {
+    type: Boolean,
+    default: false
   },
   firstLogin: {
     type: Date,
@@ -63,7 +77,6 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  // ✅ Wrong attempts track karne ke liye
   wrongAttempts: {
     type: Number,
     default: 0
@@ -77,4 +90,3 @@ const UserSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
-

